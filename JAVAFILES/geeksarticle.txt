@@ -1,0 +1,149 @@
+<!-- Problem Statement -->
+Given a sequence of integers A1,A2,...,An. Find the count of pairs (i,j) such that 1<=i<j<=N and the bitwise XOR of Ai and Aj can be broken down into a sum of two(may not be distinct) prime numbers with the same parity (both even or both odd).
+
+Constraints:
+ 1<=N<=10^5
+ 1<=Ai<=10^6 for each valid i
+
+Input : 5
+        2 4 8 1 3
+
+Output :3
+
+Explanation:
+
+ale=[2,4,8] //for even
+alo=[1,3] //for odd
+Now even count= 3*2/2 = 3
+and odd count= 2*1/2 = 1
+total= even+odd = 4
+So in ale:
+2^2=0 does not exist ptr1=0
+4^2=6 does not exist ptr1=0
+8^2=10 does not exist ptr1=0
+In alo:
+1^2=3 exists ptr2=1
+3^2=1 does not exists coz already considered so ptr2=1.
+Now remove these pairs whose xor is 2.
+So, new total= 4-(ptr1 + ptr2) = 3.
+Now check for duplicate elements, no such element exists.
+Hence print total as the answer.
+
+Examples: 
+<pre> 
+We know that all prime numbers are odd except 2. So an even number can always be broken down into two odd prime numbers(odd+odd=even), and an odd number can always be achieved using (odd=odd+even) that can be broken down into an odd prime number and an even prime number(i.e. only 2) which is not allowed.Since we have to use the same parity either both numbers are odd or both are even.Therefore, we can only breakdown an even number.
+Now, this even number can be achieved either by doing the XOR of two even numbers or two odd numbers.So we can directly calculate the count of pairs for even except for the case when their XOR becomes 2 because 2 can't be broken down into two prime numbers.
+Similarly, count for odd pairs except for 2.
+Remove these pairs from the total odd and even count. Then calculate the duplicate pairs that exists like(2^2=0,3^3=0,4^4=0) and remove these pairs also from the total and display the total.
+
+[sourcecode language="Java" highlight=""]
+
+import java.util.*;
+import java.util.HashMap;
+class Xor_pair_codechef 
+{    
+ public static void main(String[] args)
+ { 
+    Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt();
+        int arr[]=new int[n];
+        for(int i=0;i<n;i++)
+        {
+            arr[i]=sc.nextInt();
+        }
+
+        HashMap<Integer,Integer> hm=new HashMap<Integer,Integer>();//used for storing frequency of elements.
+
+        ArrayList<Integer> ale=new ArrayList<Integer>();//ArrayList for storing even numbers.
+
+        ArrayList<Integer> alo=new ArrayList<Integer>();//ArrayList for storing odd numbers.
+
+        int freq[]=new int[10000000];//frequency array
+
+        long even=0,odd=0,count=0,f1=0,f2=0,total=0;
+
+        for(int i=0;i<n;i++)
+        {
+            freq[arr[i]]++; //storing frequency of all numbers for counting number of duplicate values.
+
+            if(arr[i]%2==0)
+            {
+                even++; //storing even count
+                ale.add(arr[i]);     
+            }
+            else
+            {
+                odd++; //storing odd count
+                alo.add(arr[i]);
+            }
+
+            if(hm.containsKey(arr[i]))
+            {
+                hm.put(arr[i],hm.get(arr[i])+1); //store frequency of elements in hashmap.
+            }
+            else
+            {
+                hm.put(arr[i],1);
+            }
+        }
+
+        even=(even-1)*even/2; //total even pairs
+
+        odd=(odd-1)*odd/2; //total odd pairs
+
+        int ptr1=0,ptr2=0;
+
+    //Checking if a pair exists whose xor is 2 like(6^4=2) then storing count of such pairs and later removing all these pairs.
+
+        for(int i=0;i<ale.size();i++) //for even
+        {
+            int val=ale.get(i);
+            if(freq[(int)(val^2)]>0)
+            {
+               //Here, if such pair exists then add the frequency of that pair.
+
+                ptr1+=freq[(int)(val^2)]; 
+            }
+            freq[val]--;
+        }
+        for(int i=0;i<alo.size();i++) //for odd
+        {
+            int val=alo.get(i);
+            if(freq[(int)(val^2)]>0)
+            {
+                //Here, if such pair exists then add the frequency of that pair.
+
+                ptr2+=freq[(int)(val^2)];
+            }    
+            freq[val]--;
+        }
+
+   //Now remove these pairs from the even count and odd count respectively.
+
+        even-=ptr1; 
+        odd-=ptr2;
+        total=even+odd;
+
+   //Now removing all the duplicate pairs like (3^3=0,4^4=0,5^5=0).
+
+        for (Map.Entry m:hm.entrySet())
+        {
+            if((int)m.getValue()>1)
+            {
+                //checking the frequency of every element from the hashmap.
+
+                long val=(int)m.getValue();
+                total=total-(val-1)*val/2;//removing such pairs.
+            }
+        }
+
+   //Finally printing the total.
+
+        System.out.println(total);
+    }
+}
+}
+
+
+
+[/sourcecode]
